@@ -1,0 +1,74 @@
+From f2f36b8acbd0d5b9a5daa57b9b1ff7603f08a917 Mon Sep 17 00:00:00 2001
+From: Jialong Chen <chenjialong@huawei.com>
+Date: Sat, 13 Jul 2019 17:36:29 +0800
+Subject: [PATCH] crash: fix bitmap_len calculation overflow problem in large memory
+ address
+reason: variable overflow causes a logic error in crash.
+crash: page excluded: kernel virtual address: ffff0000089c9100  type: "kernel_config_data"
+WARNING: cannot read kernel_config_data
+crash: page excluded: kernel virtual address: ffff00000911b938  type: "possible"
+WARNING: cannot read cpu_possible_map
+crash: page excluded: kernel virtual address: ffff00000911b8b8  type: "present"
+WARNING: cannot read cpu_present_map
+crash: page excluded: kernel virtual address: ffff00000911b838  type: "online"
+WARNING: cannot read cpu_online_map
+crash: page excluded: kernel virtual address: ffff00000911b9b8  type: "active"
+WARNING: cannot read cpu_active_map
+crash: page excluded: kernel virtual address: ffff0000093ec9d0  type: "shadow_timekeeper xtime_sec"
+crash: page excluded: kernel virtual address: ffff000009124d2c  type: "init_uts_ns"
+crash: vmlinux and vmcore do not match!
+------------------------------------------------------------
+602770ecf000-6027ffffffff : System RAM
+------------------------------------------------------------
+1)
+int block_size=(int)sysconf(_SC_PAGESIZE);
+off_t bitmap_len;
+...
+bitmap_len = block_size * header->bitmap_blocks;
+bitmap_len overflow.
+2)
+static inline int 
+get_bit(char *map, int byte, int bit)
+{
+	return map[byte] & (1<<bit);
+}
+
+static inline int 
+page_is_ram(unsigned long nr)
+{
+	return get_bit(dd->bitmap, nr >> 3, nr & 7);
+}
+current nr=0x6027fff4f,
+byte overflow when call get_bit.
+
+
+Signed-off-by: Jialong Chen <chenjialong@huawei.com>
+---
+ diskdump.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/diskdump.c b/diskdump.c
+index c3e343b..1a2a5ce 100644
+--- a/diskdump.c
++++ b/diskdump.c
+@@ -233,7 +233,7 @@ clean_diskdump_data(void)
+ }
+ 
+ static inline int 
+-get_bit(char *map, int byte, int bit)
++get_bit(char *map, unsigned long byte, int bit)
+ {
+ 	return map[byte] & (1<<bit);
+ }
+@@ -674,7 +674,7 @@ restart:
+ 		dd->max_mapnr = header->max_mapnr;
+ 
+ 	/* read memory bitmap */
+-	bitmap_len = block_size * header->bitmap_blocks;
++	bitmap_len = (off_t)block_size * header->bitmap_blocks;
+ 	dd->bitmap_len = bitmap_len;
+ 
+ 	offset = (off_t)block_size * (1 + header->sub_hdr_size);
+-- 
+2.19.1
+

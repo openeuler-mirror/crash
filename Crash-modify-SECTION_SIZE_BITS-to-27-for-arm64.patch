@@ -1,0 +1,29 @@
+From 9a40b37ec6cae319f9a2c23b98f3e6e731c61780 Mon Sep 17 00:00:00 2001
+From: YunFeng Ye <yeyunfeng@huawei.com>
+Date: Wed, 3 Jul 2019 23:45:49 +0800
+Subject: [PATCH] crash: modify SECTION_SIZE_BITS to 27 for arm64
+
+reason: Memory hot plug mode adds memory, 1G unit is too large, changed to 128M unit, consistent with x86.
+
+Signed-off-by: YunFeng Ye <yeyunfeng@huawei.com>
+---
+ defs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/defs.h b/defs.h
+index d6492c5..3c24448 100644
+--- a/defs.h
++++ b/defs.h
+@@ -3173,7 +3173,7 @@ typedef signed int s32;
+ #define ARM64_STACK_SIZE   (16384)
+ #define ARM64_IRQ_STACK_SIZE   ARM64_STACK_SIZE
+ 
+-#define _SECTION_SIZE_BITS      30
++#define _SECTION_SIZE_BITS      27
+ #define _MAX_PHYSMEM_BITS       40
+ #define _MAX_PHYSMEM_BITS_3_17  48
+ #define _MAX_PHYSMEM_BITS_52    52
+ 
+-- 
+1.8.3.1
+

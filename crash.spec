@@ -1,0 +1,70 @@
+Name: crash
+Version: 7.2.6
+Release: 1
+Summary: Linux kernel crash utility.
+License: GPLv3
+URL: http://people.redhat.com/anderson
+Source0: http://people.redhat.com/anderson/crash-%{version}.tar.gz
+
+#Patch0 and Patch1 are from fedora 29:
+#https://src.fedoraproject.org/rpms/crash/tree/f29
+Patch0: lzo_snappy.patch
+Patch1: use_system_readline_v3.patch
+
+Patch9000: add-SDEI-stack-resolution.patch
+Patch9001: Crash-modify-SECTION_SIZE_BITS-to-27-for-arm64.patch
+Patch9002: fix-bitmap_len-calculation-overflow-problem-in-large.patch
+
+BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
+BuildRequires: gcc gcc-c++ bison readline-devel
+Requires: binutils
+Provides: bundled(libiberty) bundled(gdb) = 7.6
+
+%description
+The core analysis suite is a self-contained tool that can be used to
+investigate either live systems, kernel core dumps created from dump
+creation facilities such as kdump, kvmdump, xendump, the netdump and
+diskdump packages offered by Red Hat, the LKCD kernel patch, the mcore
+kernel patch created by Mission Critical Linux, as well as other formats
+created by manufacturer-specific firmware.
+
+%package devel
+Summary: the development kit of crash.
+Requires: %{name} = %{version}, zlib-devel
+
+%description devel
+The core analysis suite is a self-contained tool that can be used to
+investigate either live systems, kernel core dumps created from dump
+creation facilities such as kdump, kvmdump, xendump, the netdump and
+diskdump packages offered by Red Hat, the LKCD kernel patch, the mcore
+kernel patch created by Mission Critical Linux, as well as other formats
+created by manufacturer-specific firmware.
+
+%package_help
+
+%prep
+%autosetup -n %{name}-%{version} -p1
+
+%build
+make RPMPKG="%{version}-%{release}" CFLAGS="%{optflags}" LDFLAGS="%{build_ldflags}"
+
+%install
+rm -rf %{buildroot}
+mkdir -p %{buildroot}%{_bindir}
+%make_install
+install -D -m 0644 crash.8 %{buildroot}%{_mandir}/man8/crash.8
+install -D -m 0644 defs.h %{buildroot}%{_includedir}/crash/defs.h
+
+%files
+%{_bindir}/crash
+%doc README COPYING3
+
+%files devel
+%{_includedir}/*
+
+%files help
+%{_mandir}/man8/crash.8*
+
+%changelog
+* Fri Aug 30 2019 openEuler Buildteam <buildteam@openeuler.org> - 7.2.6-1
+- Package init
