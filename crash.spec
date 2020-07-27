@@ -3,8 +3,8 @@ Version: 7.2.8
 Release: 1
 Summary: Linux kernel crash utility.
 License: GPLv3
-URL: http://people.redhat.com/anderson
-Source0: http://people.redhat.com/anderson/%{name}-%{version}.tar.gz
+URL: https://github.com/crash-utility/crash
+Source0: https://github.com/crash-utility/%{name}/archive/%{version}.tar.gz
 
 Patch0: lzo_snappy.patch
 Patch1: use_system_readline_v3.patch
