@@ -1,10 +1,10 @@
 Name: crash
 Version: 7.2.8
-Release: 1
+Release: 2
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://github.com/crash-utility/crash
-Source0: https://github.com/crash-utility/%{name}/archive/%{version}.tar.gz
+Source0: https://github.com/crash-utility/%{name}/archive/%{name}-%{version}.tar.gz
 
 Patch0: lzo_snappy.patch
 Patch1: use_system_readline_v3.patch
@@ -75,6 +75,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Tue Jul 28 2020 xinghe <xinghe1@huawei.com> - 7.2.8-2
+- repair the source0
+
 * Mon Jul 27 2020 xinghe <xinghe1@huawei.com> - 7.2.8-1
 - update version to 7.2.8
 
