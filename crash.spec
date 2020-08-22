@@ -1,16 +1,15 @@
 Name: crash
-Version: 7.2.6
-Release: 3
+Version: 7.2.8
+Release: 1
 Summary: Linux kernel crash utility.
 License: GPLv3
-URL: http://people.redhat.com/anderson
-Source0: http://people.redhat.com/anderson/%{name}-%{version}.tar.gz
+URL: https://github.com/crash-utility/crash
+Source0: https://github.com/crash-utility/crash/archive//%{name}-%{version}.tar.gz
 
 Patch0: lzo_snappy.patch
 Patch1: use_system_readline_v3.patch
-
-Patch9000: add-SDEI-stack-resolution.patch
-Patch9001: fix-bitmap_len-calculation-overflow-problem-in-large.patch
+Patch2: add-SDEI-stack-resolution.patch
+Patch3: fix-bitmap_len-calculation-overflow-problem-in-large.patch
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
 BuildRequires: gcc gcc-c++ bison readline-devel
@@ -75,6 +74,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Mon Aug 3 2020 chengquan <chengquan3@huawei.com> - 7.2.8-1
+- Update software to v7.2.8
+
 * Sun Jan 19 2020 Yeqing Peng <pengyeqing@huawei.com> - 7.2.6-3
 - fix parse vmcore fail.
 
