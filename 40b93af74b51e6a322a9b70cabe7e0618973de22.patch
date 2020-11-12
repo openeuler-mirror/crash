@@ -1,0 +1,171 @@
+diff --git a/defs.h b/defs.h
+index d024756..9594950 100644
+--- a/defs.h
++++ b/defs.h
+@@ -6626,7 +6626,7 @@ struct sadump_data;
+ struct sadump_data *get_sadump_data(void);
+ int sadump_calc_kaslr_offset(ulong *);
+ int sadump_get_nr_cpus(void);
+-int sadump_get_cr3_idtr(int, ulong *, ulong *);
++int sadump_get_cr3_cr4_idtr(int, ulong *, ulong *, ulong *);
+ 
+ /*
+  * qemu.c
+@@ -6680,7 +6680,7 @@ int vmware_vmss_memory_dump(FILE *);
+ void dump_registers_for_vmss_dump(void);
+ int vmware_vmss_valid_regs(struct bt_info *);
+ int vmware_vmss_get_nr_cpus(void);
+-int vmware_vmss_get_cr3_idtr(int, ulong *, ulong *);
++int vmware_vmss_get_cr3_cr4_idtr(int, ulong *, ulong *, ulong *);
+ int vmware_vmss_phys_base(ulong *phys_base);
+ int vmware_vmss_set_phys_base(ulong);
+ 
+diff --git a/kaslr_helper.c b/kaslr_helper.c
+index 1a4c111..d92ea0f 100644
+--- a/kaslr_helper.c
++++ b/kaslr_helper.c
+@@ -251,7 +251,7 @@ qemu_get_nr_cpus(void)
+ }
+ 
+ static int
+-qemu_get_cr3_idtr(int cpu, ulong *cr3, ulong *idtr)
++qemu_get_cr3_cr4_idtr(int cpu, ulong *cr3, ulong *cr4, ulong *idtr)
+ {
+ 	QEMUCPUState *cpustat;
+ 
+@@ -266,6 +266,7 @@ qemu_get_cr3_idtr(int cpu, ulong *cr3, ulong *idtr)
+ 		return FALSE;
+ 
+ 	*cr3 = cpustat->cr[3];
++	*cr4 = cpustat->cr[4];
+ 	*idtr = cpustat->idt.base;
+ 
+ 	return TRUE;
+@@ -344,14 +345,14 @@ get_nr_cpus(void)
+ }
+ 
+ static int
+-get_cr3_idtr(int cpu, ulong *cr3, ulong *idtr)
++get_cr3_cr4_idtr(int cpu, ulong *cr3, ulong *cr4, ulong *idtr)
+ {
+ 	if (SADUMP_DUMPFILE())
+-		return sadump_get_cr3_idtr(cpu, cr3, idtr);
++		return sadump_get_cr3_cr4_idtr(cpu, cr3, cr4, idtr);
+ 	else if (QEMU_MEM_DUMP_NO_VMCOREINFO())
+-		return qemu_get_cr3_idtr(cpu, cr3, idtr);
++		return qemu_get_cr3_cr4_idtr(cpu, cr3, cr4, idtr);
+ 	else if (VMSS_DUMPFILE())
+-		return vmware_vmss_get_cr3_idtr(cpu, cr3, idtr);
++		return vmware_vmss_get_cr3_cr4_idtr(cpu, cr3, cr4, idtr);
+ 
+ 	return FALSE;
+ }
+@@ -483,10 +484,11 @@ calc_kaslr_offset_from_idt(uint64_t idtr, uint64_t pgd, ulong *kaslr_offset, ulo
+ #define PTI_USER_PGTABLE_BIT	PAGE_SHIFT
+ #define PTI_USER_PGTABLE_MASK	(1 << PTI_USER_PGTABLE_BIT)
+ #define CR3_PCID_MASK		0xFFFull
++#define CR4_LA57		(1 << 12)
+ int
+ calc_kaslr_offset(ulong *ko, ulong *pb)
+ {
+-	uint64_t cr3 = 0, idtr = 0, pgd = 0;
++	uint64_t cr3 = 0, cr4 = 0, idtr = 0, pgd = 0;
+ 	ulong kaslr_offset, phys_base;
+ 	ulong kaslr_offset_kdump, phys_base_kdump;
+ 	int cpu, nr_cpus;
+@@ -497,7 +499,7 @@ calc_kaslr_offset(ulong *ko, ulong *pb)
+ 	nr_cpus = get_nr_cpus();
+ 
+ 	for (cpu = 0; cpu < nr_cpus; cpu++) {
+-		if (!get_cr3_idtr(cpu, &cr3, &idtr))
++		if (!get_cr3_cr4_idtr(cpu, &cr3, &cr4, &idtr))
+ 			continue;
+ 
+ 		if (!cr3)
+@@ -514,13 +516,23 @@ calc_kaslr_offset(ulong *ko, ulong *pb)
+ 		 * calc_kaslr_offset() is called before machdep_init(PRE_GDB), so some
+ 		 * variables are not initialized yet. Set up them here to call kvtop().
+ 		 *
+-		 * TODO: XEN and 5-level is not supported
++		 * TODO: XEN is not supported
+ 		 */
+ 		vt->kernel_pgd[0] = pgd;
+ 		machdep->last_pgd_read = vt->kernel_pgd[0];
+-		machdep->machspec->physical_mask_shift = __PHYSICAL_MASK_SHIFT_2_6;
+-		machdep->machspec->pgdir_shift = PGDIR_SHIFT;
+-		machdep->machspec->ptrs_per_pgd = PTRS_PER_PGD;
++		if (cr4 & CR4_LA57) {
++			machdep->flags |= VM_5LEVEL;
++			machdep->machspec->physical_mask_shift = __PHYSICAL_MASK_SHIFT_5LEVEL;
++			machdep->machspec->pgdir_shift = PGDIR_SHIFT_5LEVEL;
++			machdep->machspec->ptrs_per_pgd = PTRS_PER_PGD_5LEVEL;
++			if ((machdep->machspec->p4d = (char *)malloc(PAGESIZE())) == NULL)
++				error(FATAL, "cannot malloc p4d space.");
++			machdep->machspec->last_p4d_read = 0;
++		} else {
++			machdep->machspec->physical_mask_shift = __PHYSICAL_MASK_SHIFT_2_6;
++			machdep->machspec->pgdir_shift = PGDIR_SHIFT;
++			machdep->machspec->ptrs_per_pgd = PTRS_PER_PGD;
++		}
+ 		if (!readmem(pgd, PHYSADDR, machdep->pgd, PAGESIZE(),
+ 					"pgd", RETURN_ON_ERROR))
+ 			continue;
+diff --git a/sadump.c b/sadump.c
+index 08893c4..d75c66b 100644
+--- a/sadump.c
++++ b/sadump.c
+@@ -1679,7 +1679,7 @@ sadump_get_nr_cpus(void)
+ }
+ 
+ int
+-sadump_get_cr3_idtr(int cpu, ulong *cr3, ulong *idtr)
++sadump_get_cr3_cr4_idtr(int cpu, ulong *cr3, ulong *cr4, ulong *idtr)
+ {
+ 	struct sadump_smram_cpu_state scs;
+ 
+@@ -1688,6 +1688,7 @@ sadump_get_cr3_idtr(int cpu, ulong *cr3, ulong *idtr)
+ 		return FALSE;
+ 
+ 	*cr3 = scs.Cr3;
++	*cr4 = scs.Cr4;
+ 	*idtr = ((uint64_t)scs.IdtUpper)<<32 | (uint64_t)scs.IdtLower;
+ 
+ 	return TRUE;
+diff --git a/vmware_vmss.c b/vmware_vmss.c
+index 952ac48..52d58e8 100644
+--- a/vmware_vmss.c
++++ b/vmware_vmss.c
+@@ -879,12 +879,13 @@ vmware_vmss_get_nr_cpus(void)
+ }
+ 
+ int
+-vmware_vmss_get_cr3_idtr(int cpu, ulong *cr3, ulong *idtr)
++vmware_vmss_get_cr3_cr4_idtr(int cpu, ulong *cr3, ulong *cr4, ulong *idtr)
+ {
+ 	if (cpu >= vmss.num_vcpus || vmss.vcpu_regs[cpu] != REGS_PRESENT_ALL)
+ 		return FALSE;
+ 
+ 	*cr3 = vmss.regs64[cpu]->cr[3];
++	*cr4 = vmss.regs64[cpu]->cr[4];
+ 	*idtr = vmss.regs64[cpu]->idtr;
+ 
+ 	return TRUE;
+diff --git a/x86_64.c b/x86_64.c
+index 0acef2b..939c8a9 100644
+--- a/x86_64.c
++++ b/x86_64.c
+@@ -356,9 +356,11 @@ x86_64_init(int when)
+ 			machdep->machspec->physical_mask_shift = __PHYSICAL_MASK_SHIFT_5LEVEL;
+ 			machdep->machspec->pgdir_shift = PGDIR_SHIFT_5LEVEL;
+ 			machdep->machspec->ptrs_per_pgd = PTRS_PER_PGD_5LEVEL;
+-			if ((machdep->machspec->p4d = (char *)malloc(PAGESIZE())) == NULL)
+-				error(FATAL, "cannot malloc p4d space.");
+-			machdep->machspec->last_p4d_read = 0;
++			if (!machdep->machspec->p4d) {
++				if ((machdep->machspec->p4d = (char *)malloc(PAGESIZE())) == NULL)
++					error(FATAL, "cannot malloc p4d space.");
++				machdep->machspec->last_p4d_read = 0;
++			}
+ 			machdep->uvtop = x86_64_uvtop_level4;  /* 5-level is optional per-task */
+ 			machdep->kvbase = (ulong)PAGE_OFFSET;
+ 			machdep->identity_map_base = (ulong)PAGE_OFFSET;
