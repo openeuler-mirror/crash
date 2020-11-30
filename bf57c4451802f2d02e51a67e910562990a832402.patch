@@ -1,0 +1,7 @@
+diff --git a/.rh_rpm_package b/.rh_rpm_package
+index 672f66a..8da5f76 100644
+--- a/.rh_rpm_package
++++ b/.rh_rpm_package
+@@ -1 +1 @@
+-7.2.9
++7.2.9++
