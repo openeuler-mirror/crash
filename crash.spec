@@ -1,10 +1,11 @@
 Name: crash
 Version: 7.2.8
-Release: 3
+Release: 4
 Summary: Linux kernel crash utility.
 License: GPLv3
-URL: http://people.redhat.com/anderson
-Source0: http://people.redhat.com/anderson/%{name}-%{version}.tar.gz
+URL: https://crash-utility.github.io
+Source0: https://github.com/crash-utility/crash/archive/%{version}.tar.gz#/%{name}-%{version}.tar.gz
+Source1: http://ftp.gnu.org/gnu/gdb/gdb-7.6.tar.gz
 
 Patch0: lzo_snappy.patch
 Patch1: use_system_readline_v3.patch
@@ -44,6 +45,7 @@ created by manufacturer-specific firmware.
 %autosetup -n %{name}-%{version} -p1
 
 %build
+cp %{SOURCE1} .
 make RPMPKG="%{version}-%{release}" CFLAGS="%{optflags}" LDFLAGS="%{build_ldflags}"
 
 %install
@@ -75,6 +77,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Sat Dec 12 2020 shixuantong <shixuantong@huawei.com> - 7.2.8-4
+- Update Source0, URL, add Source1 and update tarball from upstream release
+
 * Tue Sep 8 2020 shixuantong <shixuantong@huawei.com> - 7.2.8-3
 - Restore Source0 and URL
 
