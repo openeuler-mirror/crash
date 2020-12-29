@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.2.8
-Release: 4
+Release: 5
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -12,6 +12,7 @@ Patch1: use_system_readline_v3.patch
 
 Patch9000: add-SDEI-stack-resolution.patch
 Patch9001: fix-bitmap_len-calculation-overflow-problem-in-large.patch
+Patch9002: 9080711bd1c0645c272e74c25724ad2969d64674.patch
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
 BuildRequires: gcc gcc-c++ bison readline-devel
@@ -77,6 +78,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* 20201229105849737669 patch-tracking 7.2.8-5
+- append patch file of upstream repository from <9080711bd1c0645c272e74c25724ad2969d64674> to <9080711bd1c0645c272e74c25724ad2969d64674>
+
 * Sat Dec 12 2020 shixuantong <shixuantong@huawei.com> - 7.2.8-4
 - Update Source0, URL, add Source1 and update tarball from upstream release
 
