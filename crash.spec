@@ -1,17 +1,16 @@
 Name: crash
 Version: 7.2.9
-Release: 1
+Release: 2
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
 Source0: https://github.com/crash-utility/crash/archive/%{version}.tar.gz
 Source1: http://ftp.gnu.org/gnu/gdb/gdb-7.6.tar.gz
 
-#Patch0: lzo_snappy.patch
-#Patch1: use_system_readline_v3.patch
+Patch0: lzo_snappy.patch
+Patch1: use_system_readline_v3.patch
 
-#Patch9000: add-SDEI-stack-resolution.patch
-#Patch9001: fix-bitmap_len-calculation-overflow-problem-in-large.patch
+Patch9000: add-SDEI-stack-resolution.patch
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
 BuildRequires: gcc gcc-c++ bison readline-devel
@@ -77,6 +76,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Thu Apr 08 2021 shixuantong <shixuantong@huawei.com> - 7.2.9-2
+- fix patch issue in upgrade version commit
+
 * Mon Feb 1 2021 liudabo <liudabo1@huawei.com> - 7.2.9-1
 - Upgrade version to 7.2.9
 
