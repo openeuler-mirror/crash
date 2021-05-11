@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.2.8
-Release: 2
+Release: 3
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -45,7 +45,7 @@ created by manufacturer-specific firmware.
 
 %build
 cp %{SOURCE1} .
-make RPMPKG="%{version}-%{release}" CFLAGS="%{optflags}" LDFLAGS="%{build_ldflags}"
+make -j RPMPKG="%{version}-%{release}" CFLAGS="%{optflags}" LDFLAGS="%{build_ldflags}"
 
 %install
 rm -rf %{buildroot}
@@ -76,7 +76,10 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
-* Sat Dec 12 2020 shixuantong <shixuantong@huawei.com> - 7.2.8-4
+* Mon May 10 2021 shixuantong <shixuantong@huawei.com> - 7.2.8-3
+- add -j option for building efficiency optimization
+
+* Sat Dec 12 2020 shixuantong <shixuantong@huawei.com> - 7.2.8-2
 - Update Source0, URL, add Source1 and update tarball from upstream release
 
 * Mon Aug 3 2020 chengquan <chengquan3@huawei.com> - 7.2.8-1
