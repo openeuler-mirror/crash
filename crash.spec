@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.2.9
-Release: 3
+Release: 4
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -13,7 +13,7 @@ Patch1: use_system_readline_v3.patch
 Patch9000: add-SDEI-stack-resolution.patch
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
-BuildRequires: gcc gcc-c++ bison readline-devel
+BuildRequires: gcc gcc-c++ bison readline-devel m4
 Requires: binutils
 
 Provides: bundled(libiberty) bundled(gdb) = 7.6
@@ -76,6 +76,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Tue Jun 29 2021 zhouwenpei <zhouwenpei1@huawei.com> - 7.2.9-4
+- add buildrequires m4
+
 * Mon May 10 2021 shixuantong <shixuantong@huawei.com> - 7.2.9-3
 - add -j option for building efficiency optimization
 
