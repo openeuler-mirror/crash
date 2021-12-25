@@ -1,6 +1,6 @@
 Name: crash
-Version: 7.2.9
-Release: 4
+Version: 7.3.0
+Release: 1
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -76,6 +76,12 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Fri Dec 24 2021 zhouwenpei <zhouwenpei1@huawei.com> - 7.3.0-1
+- Upgrade version to 7.3.0
+
+* Fri Sep 03 2021 wangbin <wangbin224@huawei.com> - 7.2.9-5
+- fix null pointer reference when CONFIG_KASAN is open
+
 * Tue Jun 29 2021 zhouwenpei <zhouwenpei1@huawei.com> - 7.2.9-4
 - add buildrequires m4
 

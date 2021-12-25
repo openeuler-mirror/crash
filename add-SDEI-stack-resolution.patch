@@ -225,7 +225,7 @@ index fdf77bd..cc32d9d 100644
  			bt->flags &= ~BT_IRQSTACK;
  			if (arm64_switch_stack(bt, &stackframe, ofp) == USER_MODE)
  				break;
-@@ -2965,6 +3068,79 @@ arm64_in_kdump_text(struct bt_info *bt, struct arm64_stackframe *frame)
+@@ -2965,6 +3068,81 @@ arm64_in_kdump_text(struct bt_info *bt, struct arm64_stackframe *frame)
  }
  
  static int
@@ -241,6 +241,8 @@ index fdf77bd..cc32d9d 100644
 +		return FALSE;
 +
 +	ms = machdep->machspec;
++	if (!ms->sdei_stacks)
++		return FALSE;
 +	cpu = bt->tc->processor;
 +	stackbase = ms->sdei_stacks[cpu];
 +	stackbuf = GETBUF(ms->sdei_stack_size);
