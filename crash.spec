@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.3.0
-Release: 2
+Release: 3
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -13,6 +13,7 @@ Patch2: 0001-arm64-rename-ARM64_PAGE_OFFSET_ACTUAL-to-ARM64_FLIP_.patch
 Patch3: 0002-arm64-assign-page_offset-with-VA_BITS-kernel-configu.patch
 Patch4: 0003-arm64-use-dedicated-bits-to-record-the-VA-space-layo.patch
 Patch5: 0004-arm64-implement-switchable-PTOV-VTOP-for-kernels-5.1.patch
+Patch6:	add-SDEI-stack-resolution.patch
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
 BuildRequires: gcc gcc-c++ bison readline-devel m4
@@ -78,6 +79,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Fri Dec 31 2021 zhouwenpei <zhouwenpei1@huawei.com> - 7.3.0-3
+- add SDEI stack resolution
+
 * Thu Dec 30 2021 zhouwenpei <zhouwenpei1@huawei.com> - 7.3.0-2
 - fix seek error "IRQ stack pointer"
 
