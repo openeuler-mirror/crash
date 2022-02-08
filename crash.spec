@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.3.0
-Release: 3
+Release: 4
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -79,6 +79,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Tue Feb 8 2022 zhouwenpei <zhouwenpei1@h-partners.com> - 7.3.0-4
+- fix null pointer reference when CONFIG_KASAN is open
+
 * Fri Dec 31 2021 zhouwenpei <zhouwenpei1@huawei.com> - 7.3.0-3
 - add SDEI stack resolution
 

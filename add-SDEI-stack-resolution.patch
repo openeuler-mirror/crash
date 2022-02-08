@@ -31,11 +31,12 @@ PID: 55429  TASK: ffff802772e3ae80  CPU: 19  COMMAND: "insmod"
 
 Signed-off-by: Jialong Chen <chenjialong@huawei.com>
 ---
- arm64.c | 210 ++++++++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 206 insertions(+), 4 deletions(-)
+ arm64.c | 210 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++--
+ defs.h  |   3 +
+ 2 files changed, 209 insertions(+), 4 deletions(-)
 
 diff --git a/arm64.c b/arm64.c
-index 4787fa6..abd5eac 100644
+index fdf77bd..cc32d9d 100644
 --- a/arm64.c
 +++ b/arm64.c
 @@ -87,6 +87,10 @@ static void arm64_calc_VA_BITS(void);
@@ -57,7 +58,7 @@ index 4787fa6..abd5eac 100644
  		break;
  
  	case POST_VM:
-@@ -1669,6 +1674,70 @@ arm64_irq_stack_init(void)
+@@ -1655,6 +1660,70 @@ arm64_irq_stack_init(void)
  			readmem(p, KVADDR, &(ms->irq_stacks[i]), sizeof(ulong),
  			    "IRQ stack pointer", RETURN_ON_ERROR);
  		}
@@ -128,7 +129,7 @@ index 4787fa6..abd5eac 100644
  	} 
  }
  
-@@ -2187,7 +2256,7 @@ arm64_unwind_frame(struct bt_info *bt, struct arm64_stackframe *frame)
+@@ -2173,7 +2242,7 @@ arm64_unwind_frame(struct bt_info *bt, struct arm64_stackframe *frame)
  {
  	unsigned long high, low, fp;
  	unsigned long stack_mask;
@@ -137,7 +138,7 @@ index 4787fa6..abd5eac 100644
  	struct arm64_pt_regs *ptregs;
  	struct machine_specific *ms = machdep->machspec;
  
-@@ -2217,7 +2286,8 @@ arm64_unwind_frame(struct bt_info *bt, struct arm64_stackframe *frame)
+@@ -2203,7 +2272,8 @@ arm64_unwind_frame(struct bt_info *bt, struct arm64_stackframe *frame)
  
  	if (machdep->flags & UNW_4_14) {
  		if ((bt->flags & BT_IRQSTACK) &&
@@ -147,7 +148,7 @@ index 4787fa6..abd5eac 100644
  			if (arm64_on_process_stack(bt, frame->fp)) {
  				arm64_set_process_stack(bt);
  
-@@ -2257,6 +2327,7 @@ arm64_unwind_frame(struct bt_info *bt, struct arm64_stackframe *frame)
+@@ -2243,6 +2313,7 @@ arm64_unwind_frame(struct bt_info *bt, struct arm64_stackframe *frame)
  	 *  orig_sp = IRQ_STACK_TO_TASK_STACK(irq_stack_ptr);   (pt_regs pointer on process stack)
  	 */
  	irq_stack_ptr = ms->irq_stacks[bt->tc->processor] + ms->irq_stack_size - 16;
@@ -155,7 +156,7 @@ index 4787fa6..abd5eac 100644
  
  	if (frame->sp == irq_stack_ptr) {
  		orig_sp = GET_STACK_ULONG(irq_stack_ptr - 8);
-@@ -2277,6 +2348,25 @@ arm64_unwind_frame(struct bt_info *bt, struct arm64_stackframe *frame)
+@@ -2263,6 +2334,25 @@ arm64_unwind_frame(struct bt_info *bt, struct arm64_stackframe *frame)
  				frame->fp, INSTACK(frame->fp, bt) ? "" : " (?)");
  			return FALSE;
  		}
@@ -181,7 +182,7 @@ index 4787fa6..abd5eac 100644
  	}
  
  	return TRUE;
-@@ -2616,6 +2706,10 @@ arm64_back_trace_cmd(struct bt_info *bt)
+@@ -2602,6 +2692,10 @@ arm64_back_trace_cmd(struct bt_info *bt)
  			arm64_set_irq_stack(bt);
  			bt->flags |= BT_IRQSTACK;
  		}
@@ -192,7 +193,7 @@ index 4787fa6..abd5eac 100644
  		stackframe.fp = GET_STACK_ULONG(bt->bptr - 8);
  		stackframe.pc = GET_STACK_ULONG(bt->bptr);
  		stackframe.sp = bt->bptr + 8;
-@@ -2625,6 +2719,10 @@ arm64_back_trace_cmd(struct bt_info *bt)
+@@ -2611,6 +2705,10 @@ arm64_back_trace_cmd(struct bt_info *bt)
  			arm64_set_irq_stack(bt);
  			bt->flags |= BT_IRQSTACK;
  		}
@@ -203,7 +204,7 @@ index 4787fa6..abd5eac 100644
  		stackframe.fp = GET_STACK_ULONG(bt->hp->esp - 8);
  		stackframe.pc = bt->hp->eip ? 
  			bt->hp->eip : GET_STACK_ULONG(bt->hp->esp);
-@@ -2635,6 +2733,10 @@ arm64_back_trace_cmd(struct bt_info *bt)
+@@ -2621,6 +2719,10 @@ arm64_back_trace_cmd(struct bt_info *bt)
  			arm64_set_irq_stack(bt);
  			bt->flags |= BT_IRQSTACK;
  		}
@@ -214,7 +215,7 @@ index 4787fa6..abd5eac 100644
  		stackframe.sp = bt->stkptr;
  		stackframe.pc = bt->instptr;
  		stackframe.fp = bt->frameptr;
-@@ -2696,7 +2798,8 @@ arm64_back_trace_cmd(struct bt_info *bt)
+@@ -2682,7 +2784,8 @@ arm64_back_trace_cmd(struct bt_info *bt)
  		}
  
  		if ((bt->flags & BT_IRQSTACK) &&
@@ -224,11 +225,10 @@ index 4787fa6..abd5eac 100644
  			bt->flags &= ~BT_IRQSTACK;
  			if (arm64_switch_stack(bt, &stackframe, ofp) == USER_MODE)
  				break;
-@@ -2978,6 +3081,79 @@ arm64_in_kdump_text(struct bt_info *bt, struct arm64_stackframe *frame)
- 	return FALSE;
+@@ -2965,6 +3068,81 @@ arm64_in_kdump_text(struct bt_info *bt, struct arm64_stackframe *frame)
  }
  
-+static int
+ static int
 +arm64_in_kdump_text_on_sdei_stack(struct bt_info *bt)
 +{
 +	int cpu;
@@ -241,6 +241,8 @@ index 4787fa6..abd5eac 100644
 +		return FALSE;
 +
 +	ms = machdep->machspec;
++	if (!ms->sdei_stacks)
++		return FALSE;
 +	cpu = bt->tc->processor;
 +	stackbase = ms->sdei_stacks[cpu];
 +	stackbuf = GETBUF(ms->sdei_stack_size);
@@ -301,10 +303,11 @@ index 4787fa6..abd5eac 100644
 +	return FALSE;
 +}
 +
- static int
++static int
  arm64_in_kdump_text_on_irq_stack(struct bt_info *bt)
  {
-@@ -3125,7 +3301,8 @@ try_kernel:
+ 	int cpu;
+@@ -3111,7 +3287,8 @@ try_kernel:
  	}
  
  	if (arm64_in_kdump_text(bt, frame) || 
@@ -314,7 +317,7 @@ index 4787fa6..abd5eac 100644
  		bt->flags |= BT_KDUMP_ADJUST;
  
  	return TRUE;
-@@ -3818,6 +3995,31 @@ arm64_in_alternate_stack(int cpu, ulong stkptr)
+@@ -3804,6 +3981,31 @@ arm64_in_alternate_stack(int cpu, ulong stkptr)
  	return FALSE;
  }
  
@@ -361,5 +364,5 @@ index 9594950..9cd5ffa 100644
  	ulong __irqentry_text_end;
  	/* for exception vector code */
 -- 
-2.30.0
+2.13.7
 
