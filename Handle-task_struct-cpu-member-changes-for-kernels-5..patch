@@ -1,0 +1,56 @@
+From 68870c83d299603c07785e3530e33c13045c87ef Mon Sep 17 00:00:00 2001
+From: Alexander Egorenkov <egorenar@linux.ibm.com>
+Date: Wed, 13 Oct 2021 10:56:39 +0200
+Subject: [PATCH] Handle task_struct cpu member changes for kernels >= 5.16-rc1
+
+Kernel commit bcf9033e5449bdcaa9bed46467a7141a8049dadb
+("sched: move CPU field back into thread_info if THREAD_INFO_IN_TASK=y")
+moved the member cpu of task_struct back into thread_info.
+Without the patch, crash fails with the following error message
+during session initialization:
+
+  crash: invalid structure member offset: task_struct_cpu
+         FILE: task.c  LINE: 2904  FUNCTION: add_context()
+
+Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Signed-off-by: Kazuhito Hagio <k-hagio-ab@nec.com>
+---
+ task.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/task.c b/task.c
+index 672b416..bb6a5da 100644
+--- a/task.c
++++ b/task.c
+@@ -278,8 +278,10 @@ task_init(void)
+ 	} else if (VALID_MEMBER(task_struct_stack))
+ 		MEMBER_OFFSET_INIT(task_struct_thread_info, "task_struct", "stack");
+ 
++	MEMBER_OFFSET_INIT(task_struct_cpu, "task_struct", "cpu");
++
+ 	if (VALID_MEMBER(task_struct_thread_info)) {
+-		if (tt->flags & THREAD_INFO_IN_TASK) {
++		if (tt->flags & THREAD_INFO_IN_TASK && VALID_MEMBER(task_struct_cpu)) {
+ 			MEMBER_OFFSET_INIT(thread_info_flags, "thread_info", "flags");
+ 			/* (unnecessary) reminders */
+ 			ASSIGN_OFFSET(thread_info_task) = INVALID_OFFSET;
+@@ -315,7 +317,6 @@ task_init(void)
+         MEMBER_OFFSET_INIT(task_struct_has_cpu, "task_struct", "has_cpu");
+         MEMBER_OFFSET_INIT(task_struct_cpus_runnable,  
+ 		"task_struct", "cpus_runnable");
+-	MEMBER_OFFSET_INIT(task_struct_cpu, "task_struct", "cpu");
+ 	MEMBER_OFFSET_INIT(task_struct_active_mm, "task_struct", "active_mm");
+ 	MEMBER_OFFSET_INIT(task_struct_next_run, "task_struct", "next_run");
+ 	MEMBER_OFFSET_INIT(task_struct_flags, "task_struct", "flags");
+@@ -2900,7 +2901,7 @@ add_context(ulong task, char *tp)
+ 		else
+ 			tc->thread_info = ULONG(tp + OFFSET(task_struct_thread_info));
+ 		fill_thread_info(tc->thread_info);
+-		if (tt->flags & THREAD_INFO_IN_TASK)
++		if (tt->flags & THREAD_INFO_IN_TASK && VALID_MEMBER(task_struct_cpu))
+                 	processor_addr = (int *) (tp + OFFSET(task_struct_cpu));
+ 		else
+ 			processor_addr = (int *) (tt->thread_info + 
+-- 
+2.23.0
+
