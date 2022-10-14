@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.2.8
-Release: 3
+Release: 4
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -11,6 +11,8 @@ Patch0: lzo_snappy.patch
 Patch1: use_system_readline_v3.patch
 Patch2: add-SDEI-stack-resolution.patch
 Patch3: fix-bitmap_len-calculation-overflow-problem-in-large.patch
+Patch4: 0001-CVE-2019-1010180-Add-bfd_get_file_size-to-get-archive-element-size.patch
+Patch5: 0002-CVE-2019-1010180-DWARF-reader-Reject-sections-with-invalid-sizes.patch
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
 BuildRequires: gcc gcc-c++ bison readline-devel
@@ -76,6 +78,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Fri Oct 14 2022 chenhaixiang <chenhaixiang3@huawei.com> - 7.2.8-4
+- fix gdb CVE-2019-1010180
+
 * Mon May 10 2021 shixuantong <shixuantong@huawei.com> - 7.2.8-3
 - add -j option for building efficiency optimization
 
