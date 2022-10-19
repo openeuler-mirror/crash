@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.3.0
-Release: 6
+Release: 7
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -16,6 +16,9 @@ Patch6:	add-SDEI-stack-resolution.patch
 Patch7: Handle-task_struct-cpu-member-changes-for-kernels-5..patch
 Patch8: 0001-CVE-2019-1010180-Add-bfd_get_file_size-to-get-archive-element-size.patch
 Patch9: 0002-CVE-2019-1010180-DWARF-reader-Reject-sections-with-invalid-sizes.patch
+%ifarch sw_64
+Patch10: crash-7.3.0-sw.patch
+%endif
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
 BuildRequires: gcc gcc-c++ bison m4
@@ -81,6 +84,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Wed Oct 19 2022 wuzx<wuzx1226@qq.com> - 7.3.0-7
+- add sw64 patch
+
 * Sun Oct 9 2022 chenhaixiang <chenhaixiang3@huawei.com> - 7.3.0-6
 - fix gdb CVE-2019-1010180
 
