@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.3.0
-Release: 5
+Release: 6
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -14,6 +14,9 @@ Patch4: 0003-arm64-use-dedicated-bits-to-record-the-VA-space-layo.patch
 Patch5: 0004-arm64-implement-switchable-PTOV-VTOP-for-kernels-5.1.patch
 Patch6:	add-SDEI-stack-resolution.patch
 Patch7: Handle-task_struct-cpu-member-changes-for-kernels-5..patch
+%ifarch sw_64
+Patch8: crash-7.3.0-sw.patch
+%endif
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
 BuildRequires: gcc gcc-c++ bison m4
@@ -79,6 +82,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Wed Oct 19 2022 wuzx<wuzx1226@qq.com> - 7.3.0-6
+- add sw64 patch
+
 * Wed Feb 23 2022 wangbin <wangbin224@huawei.com> - 7.3.0-5
 - Handle task_struct cpu member changes for kernels >= 5.16-rc1
   and delete use_system_readline_v3.patch
