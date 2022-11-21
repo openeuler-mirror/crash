@@ -1,0 +1,57 @@
+From e90c0011d6e9476104c4c43aa76d2d0830a15946 Mon Sep 17 00:00:00 2001
+From: Philipp Rudo <prudo@redhat.com>
+Date: Tue, 9 Nov 2021 14:52:22 +0100
+Subject: [PATCH] Fix live debugging with lockdown=integrity
+
+With kernel lockdown the access to kernel interfaces that allow to
+extract confidential information (lockdown=confidentiality) or modify a
+running kernel (lockdown=integrity) can be restricted. Two of the
+interfaces that can be restricted are /dev/mem (integrity &
+confidentiality) and /proc/kcore (confidentiality). With
+lockdown=integrity this leads to a situation where /dev/mem exists but
+is not readable while /proc/kcore exists and is readable. This breaks
+crash's live debugging when it is invoked without argument, i.e.
+
+$ crash
+[...]
+crash: /dev/mem: Operation not permitted
+
+while passing /proc/kcore as image succeeds. The reason for this is that
+crash always picks /dev/mem as source when it exits but doesn't check if
+it is readable. Fix this by only selecting /dev/mem when it is readable.
+
+Signed-off-by: Philipp Rudo <prudo@redhat.com>
+---
+ filesys.c | 2 +-
+ main.c    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/filesys.c b/filesys.c
+index 3361b6c..43cbe82 100644
+--- a/filesys.c
++++ b/filesys.c
+@@ -3666,7 +3666,7 @@ get_live_memory_source(void)
+ 	if (pc->live_memsrc)
+ 		goto live_report;
+ 
+-	if (file_exists("/dev/mem", NULL))
++	if (file_readable("/dev/mem"))
+ 		pc->live_memsrc = "/dev/mem";
+ 	else if (file_exists("/proc/kcore", NULL)) {
+ 		pc->flags &= ~DEVMEM;
+diff --git a/main.c b/main.c
+index 388ac46..dfd343c 100644
+--- a/main.c
++++ b/main.c
+@@ -1119,7 +1119,7 @@ setup_environment(int argc, char **argv)
+ 	pc->flags2 |= REDZONE;
+ 	pc->confd = -2;
+ 	pc->machine_type = MACHINE_TYPE;
+-	if (file_exists("/dev/mem", NULL)) {     /* defaults until argv[] is parsed */
++	if (file_readable("/dev/mem")) {     /* defaults until argv[] is parsed */
+ 		pc->readmem = read_dev_mem;
+ 		pc->writemem = write_dev_mem;
+ 	} else if (file_exists("/proc/kcore", NULL)) {
+-- 
+2.27.0
+
