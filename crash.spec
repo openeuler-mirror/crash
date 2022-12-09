@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.3.0
-Release: 6
+Release: 7
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -17,6 +17,7 @@ Patch7: Handle-task_struct-cpu-member-changes-for-kernels-5..patch
 %ifarch sw_64
 Patch8: crash-7.3.0-sw.patch
 %endif
+Patch9: arm64-fix-backtraces-of-KASAN-kernel-dumpfile-truncated.patch
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
 BuildRequires: gcc gcc-c++ bison m4
@@ -82,6 +83,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Thu Dec 1 2022 Ding Hui <dinghui@sangfor.com.cn> - 7.3.0-7
+- fix backtraces of arm64 KASAN kernel dumpfile truncated
+
 * Wed Oct 19 2022 wuzx<wuzx1226@qq.com> - 7.3.0-6
 - add sw64 patch
 
