@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.2.8
-Release: 4
+Release: 5
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -13,6 +13,7 @@ Patch2: add-SDEI-stack-resolution.patch
 Patch3: fix-bitmap_len-calculation-overflow-problem-in-large.patch
 Patch4: 0001-CVE-2019-1010180-Add-bfd_get_file_size-to-get-archive-element-size.patch
 Patch5: 0002-CVE-2019-1010180-DWARF-reader-Reject-sections-with-invalid-sizes.patch
+Patch6: arm64-fix-backtraces-of-KASAN-kernel-dumpfile-truncated.patch
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
 BuildRequires: gcc gcc-c++ bison readline-devel
@@ -78,6 +79,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Thu Dec 1 2022 Ding Hui <dinghui@sangfor.com.cn> - 7.2.8-5
+- fix backtraces of arm64 KASAN kernel dumpfile truncated
+
 * Fri Oct 14 2022 chenhaixiang <chenhaixiang3@huawei.com> - 7.2.8-4
 - fix gdb CVE-2019-1010180
 
