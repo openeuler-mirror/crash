@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.3.0
-Release: 7
+Release: 8
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -19,6 +19,7 @@ Patch9: 0002-CVE-2019-1010180-DWARF-reader-Reject-sections-with-invalid-sizes.pa
 %ifarch sw_64
 Patch10: crash-7.3.0-sw.patch
 %endif
+Patch11: arm64-fix-backtraces-of-KASAN-kernel-dumpfile-truncated.patch
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
 BuildRequires: gcc gcc-c++ bison m4
@@ -84,6 +85,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Thu Dec 1 2022 Ding Hui <dinghui@sangfor.com.cn> - 7.3.0-8
+- fix backtraces of arm64 KASAN kernel dumpfile truncated
+
 * Wed Oct 19 2022 wuzx<wuzx1226@qq.com> - 7.3.0-7
 - add sw64 patch
 
