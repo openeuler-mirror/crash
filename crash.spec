@@ -1,23 +1,23 @@
 Name: crash
 Version: 7.3.0
-Release: 7
+Release: 8
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
 Source0: https://github.com/crash-utility/crash/archive/%{version}.tar.gz
 Source1: http://ftp.gnu.org/gnu/gdb/gdb-7.6.tar.gz
 
-Patch1: lzo_snappy.patch
+Patch1: 0000-lzo_snappy.patch
 Patch2: 0001-arm64-rename-ARM64_PAGE_OFFSET_ACTUAL-to-ARM64_FLIP_.patch
 Patch3: 0002-arm64-assign-page_offset-with-VA_BITS-kernel-configu.patch
 Patch4: 0003-arm64-use-dedicated-bits-to-record-the-VA-space-layo.patch
 Patch5: 0004-arm64-implement-switchable-PTOV-VTOP-for-kernels-5.1.patch
-Patch6:	add-SDEI-stack-resolution.patch
-Patch7: Handle-task_struct-cpu-member-changes-for-kernels-5..patch
+Patch6:	0005-add-SDEI-stack-resolution.patch
+Patch7: 0006-Handle-task_struct-cpu-member-changes-for-kernels-5.1.patch 
 %ifarch sw_64
-Patch8: crash-7.3.0-sw.patch
+Patch8: 0007-crash-7.3.0-sw.patch
 %endif
-Patch9: arm64-fix-backtraces-of-KASAN-kernel-dumpfile-truncated.patch
+Patch9: 0008-arm64-fix-backtraces-of-KASAN-kernel-dumpfile-truncated.patch
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
 BuildRequires: gcc gcc-c++ bison m4
@@ -83,6 +83,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Wed Dec 28 2022 tanly <tanly6@chinatelecom.cn> - 7.3.0-8
+- rename pathes to keep in order
+
 * Thu Dec 1 2022 Ding Hui <dinghui@sangfor.com.cn> - 7.3.0-7
 - fix backtraces of arm64 KASAN kernel dumpfile truncated
 
