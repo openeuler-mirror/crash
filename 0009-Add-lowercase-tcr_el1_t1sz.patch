@@ -1,0 +1,41 @@
+From 3085ad7bf654c2fe1aefe5023d83b91c3c7f8aa8 Mon Sep 17 00:00:00 2001
+From: huskarTang <tanly6@chinatelecom.cn>
+Date: Thu, 29 Dec 2022 11:11:16 +0800
+Subject: [PATCH] arm64: Add lowercase tcr_el1_t1sz
+
+---
+ arm64.c   | 3 ++-
+ netdump.c | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/arm64.c b/arm64.c
+index c703dd9..5d76a25 100644
+--- a/arm64.c
++++ b/arm64.c
+@@ -4177,7 +4177,8 @@ arm64_calc_VA_BITS(void)
+ 		} else if (ACTIVE())
+ 			error(FATAL, "cannot determine VA_BITS_ACTUAL: please use /proc/kcore\n");
+ 		else {
+-			if ((string = pc->read_vmcoreinfo("NUMBER(TCR_EL1_T1SZ)"))) {
++			if ((string = pc->read_vmcoreinfo("NUMBER(TCR_EL1_T1SZ)")) ||
++			    (string = pc->read_vmcoreinfo("NUMBER(tcr_el1_t1sz)"))) {
+ 				/* See ARMv8 ARM for the description of
+ 				 * TCR_EL1.T1SZ and how it can be used
+ 				 * to calculate the vabits_actual
+diff --git a/netdump.c b/netdump.c
+index c1c9cbf..aaea945 100644
+--- a/netdump.c
++++ b/netdump.c
+@@ -1921,7 +1921,8 @@ vmcoreinfo_read_string(const char *key)
+ 			sprintf(value, "%ld", nd->arch_data2 & 0xffffffff);
+ 			return value;
+ 		}
+-		if (STREQ(key, "NUMBER(TCR_EL1_T1SZ)") && nd->arch_data2) {
++		if ((STREQ(key, "NUMBER(TCR_EL1_T1SZ)") ||
++		     STREQ(key, "NUMBER(tcr_el1_t1sz)")) && nd->arch_data2) {
+ 			value = calloc(VADDR_PRLEN+1, sizeof(char));
+ 			sprintf(value, "%lld", ((ulonglong)nd->arch_data2 >> 32) & 0xffffffff);
+ 			pc->read_vmcoreinfo = no_vmcoreinfo;
+-- 
+2.7.4
+
