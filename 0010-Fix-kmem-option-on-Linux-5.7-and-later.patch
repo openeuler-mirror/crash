@@ -1,7 +1,8 @@
-From b43fc52b01897346f6e0977fecb3b056f41753f8 Mon Sep 17 00:00:00 2001
-From: huskarTang <tanly6@chinatelecom.cn>
-Date: Thu, 29 Dec 2022 11:32:59 +0800
-Subject: [PATCH] Fix for 'kmem -s|-S' option on Linux 5.7 and later kernels
+From 647a5c33e1c94054d7b63168cd6c12901591cb77 Mon Sep 17 00:00:00 2001
+From: Lianbo Jiang <lijiang@redhat.com>
+Date: Thu, 27 May 2021 18:02:11 +0800
+Subject: [PATCH 2/5] Fix for "kmem -s|-S" option on Linux 5.7 and later
+ kernels
 
 Linux 5.7 and later kernels that contain kernel commit 1ad53d9fa3f6
 ("slub: improve bit diffusion for freelist ptr obfuscation") changed
@@ -11,13 +12,15 @@ call to mix bits a little more.  When kernel is configured with the
 options display wrong statistics and state whether slab objects are
 in use or free and can print the following errors:
 
-      crash> kmem -s
-      CACHE             OBJSIZE  ALLOCATED     TOTAL  SLABS  SSIZE  NAME
-      87201e00              528          0         0      0     8k  xfs_dqtrx
-      87201f00              496          0         0      0     8k  xfs_dquot
-      kmem: xfs_buf: slab: 37202e6e900 invalid freepointer: b844bab900001d70
-      kmem: xfs_buf: slab: 3720250fd80 invalid freepointer: b8603f9400001370
-      ...
+  crash> kmem -s
+  CACHE             OBJSIZE  ALLOCATED     TOTAL  SLABS  SSIZE  NAME
+  87201e00              528          0         0      0     8k  xfs_dqtrx
+  87201f00              496          0         0      0     8k  xfs_dquot
+  kmem: xfs_buf: slab: 37202e6e900 invalid freepointer: b844bab900001d70
+  kmem: xfs_buf: slab: 3720250fd80 invalid freepointer: b8603f9400001370
+  ...
+
+Signed-off-by: Lianbo Jiang <lijiang@redhat.com>
 ---
  memory.c | 12 ++++++++++--
  1 file changed, 10 insertions(+), 2 deletions(-)
