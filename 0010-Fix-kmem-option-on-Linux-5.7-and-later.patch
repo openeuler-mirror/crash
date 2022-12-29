@@ -1,0 +1,63 @@
+From b43fc52b01897346f6e0977fecb3b056f41753f8 Mon Sep 17 00:00:00 2001
+From: huskarTang <tanly6@chinatelecom.cn>
+Date: Thu, 29 Dec 2022 11:32:59 +0800
+Subject: [PATCH] Fix for 'kmem -s|-S' option on Linux 5.7 and later kernels
+
+Linux 5.7 and later kernels that contain kernel commit 1ad53d9fa3f6
+("slub: improve bit diffusion for freelist ptr obfuscation") changed
+the calculation formula in the freelist_ptr(), which added a swab()
+call to mix bits a little more.  When kernel is configured with the
+"CONFIG_SLAB_FREELIST_HARDENED=y", without the patch, the "kmem -s|-S"
+options display wrong statistics and state whether slab objects are
+in use or free and can print the following errors:
+
+      crash> kmem -s
+      CACHE             OBJSIZE  ALLOCATED     TOTAL  SLABS  SSIZE  NAME
+      87201e00              528          0         0      0     8k  xfs_dqtrx
+      87201f00              496          0         0      0     8k  xfs_dquot
+      kmem: xfs_buf: slab: 37202e6e900 invalid freepointer: b844bab900001d70
+      kmem: xfs_buf: slab: 3720250fd80 invalid freepointer: b8603f9400001370
+      ...
+---
+ memory.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+diff --git a/memory.c b/memory.c
+index 8c6bbe4..f3862c2 100644
+--- a/memory.c
++++ b/memory.c
+@@ -16,10 +16,14 @@
+  * GNU General Public License for more details.
+  */
+ 
++#define _LARGEFILE64_SOURCE 1  /* stat64() */
+ #include "defs.h"
+ #include <sys/mman.h>
+ #include <ctype.h>
+ #include <netinet/in.h>
++#include "makedumpfile.h"
++#include <byteswap.h>
++
+ 
+ struct meminfo {           /* general purpose memory information structure */
+         ulong cache;       /* used by the various memory searching/dumping */
+@@ -19336,10 +19340,14 @@ count_free_objects(struct meminfo *si, ulong freelist)
+ static ulong
+ freelist_ptr(struct meminfo *si, ulong ptr, ulong ptr_addr)
+ {
+-	if (VALID_MEMBER(kmem_cache_random))
++	if (VALID_MEMBER(kmem_cache_random)) {
+ 		/* CONFIG_SLAB_FREELIST_HARDENED */
++
++		if (THIS_KERNEL_VERSION >= LINUX(5,7,0))
++			if (sizeof(long) == 8)
++				ptr_addr = bswap_64(ptr_addr);
+ 		return (ptr ^ si->random ^ ptr_addr);
+-	else
++	} else
+ 		return ptr;
+ }
+ 
+-- 
+2.7.4
+
