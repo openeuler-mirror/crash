@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.3.0
-Release: 8
+Release: 9
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -18,6 +18,8 @@ Patch7: 0006-Handle-task_struct-cpu-member-changes-for-kernels-5.1.patch
 Patch8: 0007-crash-7.3.0-sw.patch
 %endif
 Patch9: 0008-arm64-fix-backtraces-of-KASAN-kernel-dumpfile-truncated.patch
+Patch10: 0009-Add-lowercase-tcr_el1_t1sz.patch
+
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
 BuildRequires: gcc gcc-c++ bison m4
@@ -83,7 +85,10 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
-* Wed Dec 28 2022 tanly <tanly6@chinatelecom.cn> - 7.3.0-8
+* Thu Dec 29 2022 huskartang <tanly6@chinatelecom.cn> - 7.3.0-9
+- Add lowercase tcr_el1_t1sz
+
+* Wed Dec 28 2022 huskartang <tanly6@chinatelecom.cn> - 7.3.0-8
 - rename pathes to keep in order
 
 * Thu Dec 1 2022 Ding Hui <dinghui@sangfor.com.cn> - 7.3.0-7
