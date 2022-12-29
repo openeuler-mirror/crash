@@ -1,20 +1,22 @@
-From 7ad855949e755194f41400f969c9b51f91753d6f Mon Sep 17 00:00:00 2001
-From: huskarTang <tanly6@chinatelecom.cn>
-Date: Thu, 29 Dec 2022 13:16:56 +0800
-Subject: [PATCH] Fix the value of TIF_SIGPENDING macro
+From 704623dfde43da98ffb354b3d7f450cd012a8215 Mon Sep 17 00:00:00 2001
+From: Youling Tang <tangyouling@loongson.cn>
+Date: Thu, 3 Jun 2021 16:07:41 +0800
+Subject: [PATCH 2/2] defs.h: Fix the value of TIF_SIGPENDING macro
 
 Correct the change of the value of TIF_SIGPENDING macro between
-    different kernel versions.
+different kernel versions.
 
-    TIF_SIGPENDING changes with the kernel version as follows:
-      ARM     2 -> 0 at v2.6.23
-      MIPS    2 -> 1 at v2.6.23
-      MIPS64  2 -> 1 at v2.6.23
-      PPC     2 -> 1 at v2.6.23
-      IA64    1 -> 0 at v2.6.23
-      PPC64   2 -> 1 at v2.6.23
-      S390    2 -> 1 at v3.16
-      S390X   2 -> 1 at v3.16
+TIF_SIGPENDING changes with the kernel version as follows:
+  ARM     2 -> 0 at v2.6.23
+  MIPS    2 -> 1 at v2.6.23
+  MIPS64  2 -> 1 at v2.6.23
+  PPC     2 -> 1 at v2.6.23
+  IA64    1 -> 0 at v2.6.23
+  PPC64   2 -> 1 at v2.6.23
+  S390    2 -> 1 at v3.16
+  S390X   2 -> 1 at v3.16
+
+Signed-off-by: Youling Tang <tangyouling@loongson.cn>
 ---
  defs.h | 16 ++++++++--------
  1 file changed, 8 insertions(+), 8 deletions(-)

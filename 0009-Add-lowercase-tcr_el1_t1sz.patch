@@ -1,8 +1,16 @@
-From 3085ad7bf654c2fe1aefe5023d83b91c3c7f8aa8 Mon Sep 17 00:00:00 2001
-From: huskarTang <tanly6@chinatelecom.cn>
-Date: Thu, 29 Dec 2022 11:11:16 +0800
-Subject: [PATCH] arm64: Add lowercase tcr_el1_t1sz
+From a7ecf2467f953b632713f38ab8104596755bca8c Mon Sep 17 00:00:00 2001
+From: John Donnelly <john.p.donnelly@oracle.com>
+Date: Wed, 12 May 2021 14:48:03 -0700
+Subject: [PATCH 1/5] arm64: Add lowercase tcr_el1_t1sz
 
+Commit 1c45cea "arm64: Change tcr_el1_t1sz variable name to
+TCR_EL1_T1SZ", renamed the variable to upper case, but there are
+kernels in existence that still have the lower case name, which
+breaks crash backwards compatibility.
+
+Resolves: https://github.com/crash-utility/crash/pull/82
+Signed-off-by: John Donnelly <john.p.donnelly@oracle.com>
+Signed-off-by: Kazuhito Hagio <k-hagio-ab@nec.com>
 ---
  arm64.c   | 3 ++-
  netdump.c | 3 ++-
