@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.3.0
-Release: 9
+Release: 10
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -19,6 +19,7 @@ Patch8: 0007-crash-7.3.0-sw.patch
 %endif
 Patch9: 0008-arm64-fix-backtraces-of-KASAN-kernel-dumpfile-truncated.patch
 Patch10: 0009-Add-lowercase-tcr_el1_t1sz.patch
+Patch11: 0010-Fix-kmem-option-on-Linux-5.7-and-later.patch
 
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
@@ -85,6 +86,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Thu Dec 29 2022 huskartang <tanly6@chinatelecom.cn> - 7.3.0-10
+- Fix "kmem -s|-S" option on Linux 5.7 and later kernels
+
 * Thu Dec 29 2022 huskartang <tanly6@chinatelecom.cn> - 7.3.0-9
 - Add lowercase tcr_el1_t1sz
 
