@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.3.0
-Release: 9
+Release: 10
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -21,6 +21,7 @@ Patch10: crash-7.3.0-sw.patch
 %endif
 Patch11: Fix-live-debugging-with-lockdown-integrity.patch
 Patch12: arm64-fix-backtraces-of-KASAN-kernel-dumpfile-truncated.patch
+Patch13: 0001-arm64-Fix-segfault-by-bt-command-with-offline-cpus.patch
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
 BuildRequires: gcc gcc-c++ bison m4
@@ -86,6 +87,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Wed Jan 4 2023 lijianglin<lijianglin2@huawei.com> - 7.3.0-10
+- fix segfault by "bt" command with offline cpus
+
 * Thu Dec 1 2022 Ding Hui <dinghui@sangfor.com.cn> - 7.3.0-9
 - fix backtraces of arm64 KASAN kernel dumpfile truncated
 
