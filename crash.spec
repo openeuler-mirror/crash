@@ -1,6 +1,6 @@
 Name: crash
 Version: 7.3.0
-Release: 11
+Release: 12
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
@@ -21,6 +21,7 @@ Patch9: 0008-arm64-fix-backtraces-of-KASAN-kernel-dumpfile-truncated.patch
 Patch10: 0009-Add-lowercase-tcr_el1_t1sz.patch
 Patch11: 0010-Fix-kmem-option-on-Linux-5.7-and-later.patch
 Patch12: 0011-Fix-macro-TIF_SIGPENDING-values.patch
+Patch13: 0001-arm64-Fix-segfault-by-bt-command-with-offline-cpus.patch
 
 BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
 BuildRequires: gcc gcc-c++ bison m4
@@ -86,6 +87,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Wed Jan 4 2023 lijianglin<lijianglin2@huawei.com> - 7.3.0-12
+- fix segfault by "bt" command with offline cpus
+
 * Thu Dec 29 2022 huskartang <tanly6@chinatelecom.cn> - 7.3.0-11
 - Fix the value of TIF_SIGPENDING macro
 
