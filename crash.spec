@@ -1,33 +1,24 @@
 Name: crash
-Version: 7.3.0
-Release: 12
+Version: 8.0.2
+Release: 1
 Summary: Linux kernel crash utility.
 License: GPLv3
 URL: https://crash-utility.github.io
 Source0: https://github.com/crash-utility/crash/archive/%{version}.tar.gz
-Source1: http://ftp.gnu.org/gnu/gdb/gdb-7.6.tar.gz
+Source1: http://ftp.gnu.org/gnu/gdb/gdb-10.2.tar.gz
 
 Patch1: 0000-lzo_snappy.patch
-Patch2: 0001-arm64-rename-ARM64_PAGE_OFFSET_ACTUAL-to-ARM64_FLIP_.patch
-Patch3: 0002-arm64-assign-page_offset-with-VA_BITS-kernel-configu.patch
-Patch4: 0003-arm64-use-dedicated-bits-to-record-the-VA-space-layo.patch
-Patch5: 0004-arm64-implement-switchable-PTOV-VTOP-for-kernels-5.1.patch
-Patch6:	0005-add-SDEI-stack-resolution.patch
-Patch7: 0006-Handle-task_struct-cpu-member-changes-for-kernels-5.1.patch 
+Patch2: 0001-add-SDEI-stack-resolution.patch
 %ifarch sw_64
-Patch8: 0007-crash-7.3.0-sw.patch
+Patch3: 0002-crash-8.0.2-sw.patch
 %endif
-Patch9: 0008-arm64-fix-backtraces-of-KASAN-kernel-dumpfile-truncated.patch
-Patch10: 0009-Add-lowercase-tcr_el1_t1sz.patch
-Patch11: 0010-Fix-kmem-option-on-Linux-5.7-and-later.patch
-Patch12: 0011-Fix-macro-TIF_SIGPENDING-values.patch
-Patch13: 0001-arm64-Fix-segfault-by-bt-command-with-offline-cpus.patch
+Patch4: 0003-arm64-fix-backtraces-of-KASAN-kernel-dumpfile-truncated.patch
 
-BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel
+BuildRequires: ncurses-devel zlib-devel lzo-devel snappy-devel texinfo libzstd-devel 
 BuildRequires: gcc gcc-c++ bison m4
 Requires: binutils
 
-Provides: bundled(libiberty) bundled(gdb) = 7.6
+Provides: bundled(libiberty) bundled(gdb) = 10.2
 
 %description
 The core analysis suite is a self-contained tool that can be used to
@@ -56,7 +47,7 @@ created by manufacturer-specific firmware.
 
 %build
 cp %{SOURCE1} .
-make -j RPMPKG="%{version}-%{release}" CFLAGS="%{optflags}" LDFLAGS="%{build_ldflags}"
+make -j`nproc` RPMPKG="%{version}-%{release}" CFLAGS="%{optflags}" CXXFLAGS="%{optflags}" LDFLAGS="%{build_ldflags}"
 
 %install
 rm -rf %{buildroot}
@@ -87,6 +78,9 @@ install -D -m 0644 defs.h %{buildroot}%{_includedir}/%{name}/defs.h
 %{_mandir}/man8/crash.8*
 
 %changelog
+* Sun Jan 29 2023 chenhaixiang<chenhaixiang3@huawei.com> - 8.0.2-1
+- update to crash-8.0.2
+
 * Wed Jan 4 2023 lijianglin<lijianglin2@huawei.com> - 7.3.0-12
 - fix segfault by "bt" command with offline cpus
 
